@@ -1,6 +1,9 @@
-import random
-from flask import Flask, request, render_template, jsonify, redirect
+import glob
+
+from flask import Flask, request, render_template, jsonify
 from flask import logging
+
+import database
 
 app = Flask(__name__)
 # When this is True, when you edit this file, the server automatically picks up the changes and refreshes! Wow!
@@ -18,10 +21,26 @@ memory = {'fave': 'placeholder'}
 def home():
     return render_template('index.html')
 
+@app.route('/get-next-image/', methods=['GET'])
+def get_next_image():
+    path = "data/"
+    file_iterator = glob.iglob(path)
+    processed = True
+    filename = None
+
+    while processed:
+        try:
+            filename = file_iterator.next()
+        except StopIteration:
+            logger.info("No more images to process.")
+            return None
+        processed = database.check_file_processed(filename)
+    return "/data/{}".format(filename)
+
 @app.route('/crop-image/', methods=['POST'])
 def crop_image():
     crop_info = dict(request.form)
-    logger.info("file_name: {}".format(crop_info['file_name']))
+    logger.info("filename: {}".format(crop_info['filename']))
     logger.info("x1: {}".format(crop_info['x1']))
     logger.info("y1: {}".format(crop_info['y1']))
     logger.info("x2: {}".format(crop_info['x2']))
@@ -29,6 +48,7 @@ def crop_image():
     return jsonify(process_image(crop_info))
 
 def process_image(crop_info):
+    database.mark_file_as_processed(crop_info["filename"])
     return {
         "length": 2,
         "width": 1,
