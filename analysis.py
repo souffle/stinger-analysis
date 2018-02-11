@@ -1,4 +1,5 @@
 import cv2
+import glob
 import numpy as np
 
 
@@ -27,14 +28,24 @@ def find_width_and_length(box):
     return width, height
 
 
+def find_center_and_orientation(box):
+    moments = cv2.moments(box)
+    center_x = float(moments["m10"]) / moments["m00"]
+    center_y = float(moments["m01"]) / moments["m00"]
+    print center_x
+    print center_y
+
+
 if __name__ == '__main__':
-    image = cv2.imread("data/cropped.jpg", cv2.IMREAD_GRAYSCALE)
-    contour = find_contour(image)
-    box = find_bounding_box(contour)
-    width, height = find_width_and_length(box)
-    print width, height
-    # Render box
-    color_image = cv2.imread("data/cropped.jpg", cv2.IMREAD_COLOR)
-    result = cv2.drawContours(color_image, [np.int0(box)], 0, (0, 0, 255), 2)
-    cv2.imshow('1', result)
-    cv2.waitKey()
+    for filename in glob.glob("data/*"):
+        image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+        contour = find_contour(image)
+        box = find_bounding_box(contour)
+        width, height = find_width_and_length(box)
+        find_center_and_orientation(box)
+        print width, height
+        # Render box
+        color_image = cv2.imread(filename, cv2.IMREAD_COLOR)
+        result = cv2.drawContours(color_image, [np.int0(box)], 0, (0, 0, 255), 2)
+        cv2.imshow('1', result)
+        cv2.waitKey()
