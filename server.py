@@ -1,8 +1,9 @@
 import glob
-import random
-from flask import Flask, request, render_template, jsonify, redirect
+
+from flask import Flask, request, render_template, jsonify
 from flask import logging
 
+import analysis
 import database
 
 app = Flask(__name__)
@@ -31,19 +32,18 @@ def get_next_image():
 @app.route('/crop-image/', methods=['POST'])
 def crop_image():
     crop_info = dict(request.form)
-    logger.info("file_name: {}".format(crop_info['file_name']))
-    logger.info("x1: {}".format(crop_info['x1']))
-    logger.info("y1: {}".format(crop_info['y1']))
-    logger.info("x2: {}".format(crop_info['x2']))
-    logger.info("y2: {}".format(crop_info['y2']))
-    return jsonify(process_image(crop_info))
-
-def process_image(crop_info):
-    return {
-        "length": 2,
-        "width": 1,
-        "ratio": 2
+    filename = crop_info['filename']
+    x1 = crop_info['x1']
+    y1 = crop_info['y1']
+    x2 = crop_info['x2']
+    y2 = crop_info['y2']
+    length, width = analysis.process_image(filename, x1, y1, x2, y2)
+    # TODO: write length, width, ratio to spreadsheet
+    json = {
+        "length": length,
+        "width": width
     }
+    return jsonify(json)
 
 def find_next_file_to_process(path):
     for file in glob.iglob(path):
