@@ -1,7 +1,7 @@
 import cv2
 import glob
 import numpy as np
-import ellipseEdgeDetect.py as elps
+import ellipseEdgeDetect as elps
 
 CANVAS_DIAMETER = 1000
 STANDARD_SIZE = 10000
