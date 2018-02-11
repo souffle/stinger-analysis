@@ -2,11 +2,38 @@ import cv2
 import glob
 import numpy as np
 
+CANVAS_DIAMETER = 1000
+STANDARD_SIZE = 10000
+STANDARD_WIDTH = 350
+STANDARD_HEIGHT = 75
+STANDARD_VALUE = 150
+
+
+def process_image(filename, x1, y1, x2, y2):
+    image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+    image = normalize_brightness(image)
+    cropped = image[y1:y2, x1:x2]
+    contour = find_contour(cropped)
+    box = find_bounding_box(contour)
+    width, height = find_width_and_length(box)
+    # center_x, center_y, orientation, scale = find_center_and_orientation(contour)
+    # normalized = normalize_orientation(cropped, center_x, center_y, orientation, scale)
+    return width, height
+
+
+def normalize_brightness(image):
+    avg_brightness = np.mean(image)
+    factor = STANDARD_VALUE / avg_brightness
+    return (image * factor).astype(np.uint8)
+
 
 def find_contour(image):
     edges = cv2.Canny(image, 50, 75)
+    cv2.imshow('2', edges)
     dilated = cv2.dilate(edges, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    cv2.imshow('3', dilated)
     eroded = cv2.erode(dilated, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    cv2.imshow('4', eroded)
     _, contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     if len(contours) > 0:
         return max(contours, key=lambda contour: cv2.contourArea(contour))
@@ -28,24 +55,53 @@ def find_width_and_length(box):
     return width, height
 
 
-def find_center_and_orientation(box):
-    moments = cv2.moments(box)
+def find_center_and_orientation(contour):
+    moments = cv2.moments(contour)
     center_x = float(moments["m10"]) / moments["m00"]
     center_y = float(moments["m01"]) / moments["m00"]
-    print center_x
-    print center_y
+    _, _, orientation = cv2.fitEllipse(contour)
+    box = find_bounding_box(contour)
+    width, height = find_width_and_length(box)
+    scale = np.sqrt(float(STANDARD_SIZE) / float(width * height))
+    return center_x, center_y, orientation, scale
 
 
-if __name__ == '__main__':
+def normalize_orientation(image, center_x, center_y, orientation, scale):
+    canvas_radius = CANVAS_DIAMETER / 2
+    translation = np.float32([[1, 0, canvas_radius-center_x], [0, 1, canvas_radius-center_y]])
+    translated = cv2.warpAffine(image, translation, (CANVAS_DIAMETER, CANVAS_DIAMETER))
+    rotation_matrix = cv2.getRotationMatrix2D((canvas_radius, canvas_radius), orientation-90, scale=scale)
+    canvas_result = cv2.warpAffine(translated, rotation_matrix, (CANVAS_DIAMETER, CANVAS_DIAMETER))
+    height_offset = int(STANDARD_HEIGHT/2)
+    width_offset = int(STANDARD_WIDTH/2)
+    cropped = canvas_result[canvas_radius-height_offset:canvas_radius+height_offset,
+                            canvas_radius-width_offset:canvas_radius+width_offset]
+    return cropped
+
+
+def main():
     for filename in glob.glob("data/*"):
         image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+        image = normalize_brightness(image)
         contour = find_contour(image)
         box = find_bounding_box(contour)
         width, height = find_width_and_length(box)
-        find_center_and_orientation(box)
-        print width, height
+        print float(height) / width
+        center_x, center_y, orientation, scale = find_center_and_orientation(contour)
+        normalized = normalize_orientation(image, center_x, center_y, orientation, scale)
         # Render box
         color_image = cv2.imread(filename, cv2.IMREAD_COLOR)
         result = cv2.drawContours(color_image, [np.int0(box)], 0, (0, 0, 255), 2)
-        cv2.imshow('1', result)
+        result = cv2.drawContours(result, [np.int0(contour)], 0, (0, 255, 0), 1)
+        cv2.imshow('1', image)
+        cv2.imshow('5', normalized)
+        cv2.imshow('6', result)
         cv2.waitKey()
+
+
+def test_full_process():
+    print process_image("uncropped.jpg", 500, 300, 800, 450)
+
+
+if __name__ == '__main__':
+    main()
