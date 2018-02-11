@@ -21,9 +21,10 @@ def process_image(filename, x1, y1, x2, y2):
         print cropped.shape
         grayscale = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
         try:
-            elps.file2ellipse(grayscale, basename, plot=True)
+            center_x, center_y, scale, orientation = elps.file2ellipse(grayscale, basename, plot=True)
+            normalized_ian = normalize_ian_orientation(cropped, center_x, center_y, -orientation, scale)
         except:
-            pass
+            normalized_ian = cropped
         fallback = find_contour(grayscale)
         preferred = find_contour_v2(cropped)
         contour = preferred if preferred is not None else fallback
@@ -32,6 +33,7 @@ def process_image(filename, x1, y1, x2, y2):
         center_x, center_y, orientation, scale = find_center_and_orientation(contour)
         normalized = normalize_orientation(cropped, center_x, center_y, orientation, scale)
         cv2.imwrite("static/normalized/{}".format(basename), normalized)
+        cv2.imwrite("static/normalized_ian/{}".format(basename), normalized_ian)
         demo = render_boundaries(cropped, contour, box)
         cv2.imwrite("static/output/{}".format(basename), demo)
         segmentation = find_mask(cropped)
@@ -91,6 +93,19 @@ def find_width_and_length(box):
     width = min(side1, side2)
     height = max(side1, side2)
     return width, height
+
+
+def normalize_ian_orientation(image, center_x, center_y, orientation, scale):
+    canvas_radius = CANVAS_DIAMETER / 2
+    translation = np.float32([[1, 0, canvas_radius-center_x], [0, 1, canvas_radius-center_y]])
+    translated = cv2.warpAffine(image, translation, (CANVAS_DIAMETER, CANVAS_DIAMETER))
+    rotation_matrix = cv2.getRotationMatrix2D((canvas_radius, canvas_radius), orientation-90, scale=scale)
+    canvas_result = cv2.warpAffine(translated, rotation_matrix, (CANVAS_DIAMETER, CANVAS_DIAMETER))
+    height_offset = int(STANDARD_HEIGHT/2)
+    width_offset = int(STANDARD_WIDTH/2)
+    cropped = canvas_result[canvas_radius-height_offset:canvas_radius+height_offset,
+                            canvas_radius-width_offset:canvas_radius+width_offset]
+    return cropped
 
 
 def find_center_and_orientation(contour):

@@ -31,6 +31,18 @@
                     <img data-filename="" src="" class="demo" id="ellipse">
                 </div>
             </div>
+<<<<<<< HEAD
+=======
+
+            <div class="demo-container-2">
+                <h4 id="normalized-ian-approach" class="subheadline"></h4>
+                <div class="demo-container">
+                    <img data-filename="" src="" class="demo" id="normalized2">
+                </div>
+            </div>
+        </div>
+        <div class="demo-row">
+>>>>>>> origin/master
             <div class="demo-container-2">
                 <h4 id="seg" class="subheadline"></h4>
                 <div class="demo-container">
@@ -73,6 +85,11 @@
                             $("#demo").attr("src", rendering + "?" + new Date().getTime());
                             var normalized = response["normalized"];
                             $("#norm").attr("src", normalized + "?" + new Date().getTime());
+<<<<<<< HEAD
+=======
+                            var normalized2 = response["normalized2"];
+                            $("#normalized2").attr("src", normalized2 + "?" + new Date().getTime());
+>>>>>>> origin/master
                             var ellipse = response["ellipse"];
                             $("#ellipse").attr("src", ellipse + "?" + new Date().getTime());
                             var segmentation = response["segmentation"];
@@ -81,6 +98,10 @@
                             $("#seg").text("Image Segmentation Approach");
                             $("#ellipse-approach").text("Ellipse Fitting Approach");
                             $("#normed").text("Centered, Scaled, and Rotated");
+<<<<<<< HEAD
+=======
+                            $("#normalized-ian-approach").text("Centered, Scaled, and Rotated (Ellipse Approach)");
+>>>>>>> origin/master
                         });
                     }
                 });
@@ -88,6 +109,10 @@
                 $("#norm").attr('src', '');
                 $("#ellipse").attr('src', '');
                 $("#segmentation").attr('src', '');
+<<<<<<< HEAD
+=======
+                $("#normalized2").attr('src', '');
+>>>>>>> origin/master
             });
         });
 

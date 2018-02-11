@@ -30,6 +30,7 @@ def get_next_image():
     path = "static/todo/*.jpg"
     next_file_to_process = find_next_file_to_process(path)
     filename = "static/todo/{}".format(next_file_to_process)
+    database.mark_file_as_processed(os.path.basename(filename))
     image = cv2.imread(filename)
     h, w = image.shape[:2]
     json = {"filename": next_file_to_process, 'height': h, 'width': w}
@@ -44,7 +45,6 @@ def crop_image():
     y1 = int(float(crop_info['y1'][0]))
     x2 = int(float(crop_info['x2'][0]))
     y2 = int(float(crop_info['y2'][0]))
-    database.mark_file_as_processed(os.path.basename(filename))
     result = analysis.process_image(filename, x1, y1, x2, y2)
     if result is not None:
         # TODO: write length, width, ratio to spreadsheet
@@ -56,6 +56,7 @@ def crop_image():
             "ellipse": '/static/ellipses/{}'.format(os.path.basename(filename).replace('.jpg', '.png')),
             'render': '/static/output/{}'.format(os.path.basename(filename)),
             'normalized': '/static/normalized/{}'.format(os.path.basename(filename)),
+            'normalized2': '/static/normalized_ian/{}'.format(os.path.basename(filename)),
             'segmentation': '/static/segmentation/{}'.format(os.path.basename(filename))
         }
         return jsonify(json)
