@@ -1,7 +1,8 @@
 import cv2
 import glob
 import numpy as np
-import ellipseEdgeDetect.py as elps
+import os
+import ellipseEdgeDetect as elps
 
 CANVAS_DIAMETER = 1000
 STANDARD_SIZE = 10000
@@ -11,15 +12,31 @@ STANDARD_VALUE = 150
 
 
 def process_image(filename, x1, y1, x2, y2):
-    image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-    image = normalize_brightness(image)
-    cropped = image[y1:y2, x1:x2]
-    contour = find_contour(cropped)
-    box = find_bounding_box(contour)
-    width, height = find_width_and_length(box)
-    # center_x, center_y, orientation, scale = find_center_and_orientation(contour)
-    # normalized = normalize_orientation(cropped, center_x, center_y, orientation, scale)
-    return width, height
+    filename = filename.strip('/')
+    basename = os.path.basename(filename)
+    image = cv2.imread(filename, cv2.IMREAD_COLOR)
+    if image is not None:
+        # image = normalize_brightness(image)
+        cropped = image[y1:y2, x1:x2]
+        print cropped.shape
+        grayscale = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+        try:
+            elps.file2ellipse(grayscale, basename, plot=True)
+        except:
+            pass
+        fallback = find_contour(grayscale)
+        preferred = find_contour_v2(cropped)
+        contour = preferred if preferred is not None else fallback
+        box = find_bounding_box(contour)
+        width, length = find_width_and_length(box)
+        center_x, center_y, orientation, scale = find_center_and_orientation(contour)
+        normalized = normalize_orientation(cropped, center_x, center_y, orientation, scale)
+        cv2.imwrite("static/normalized/{}".format(basename), normalized)
+        demo = render_boundaries(cropped, contour, box)
+        cv2.imwrite("static/output/{}".format(basename), demo)
+        segmentation = find_mask(cropped)
+        cv2.imwrite("static/segmentation/{}".format(basename), segmentation)
+        return width, length
 
 
 def normalize_brightness(image):
@@ -30,12 +47,32 @@ def normalize_brightness(image):
 
 def find_contour(image):
     edges = cv2.Canny(image, 50, 75)
-    cv2.imshow('2', edges)
     dilated = cv2.dilate(edges, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
-    cv2.imshow('3', dilated)
     eroded = cv2.erode(dilated, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
-    cv2.imshow('4', eroded)
     _, contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
+    if len(contours) > 0:
+        return max(contours, key=lambda contour: cv2.contourArea(contour))
+    return None
+
+
+def find_mask(image):
+    h, w = image.shape[:2]
+    mask = np.zeros(image.shape[:2], np.uint8)
+    background = np.zeros((1, 65), np.float64)
+    foreground = np.zeros((1, 65), np.float64)
+    rect = (10, 10, w - 20, h - 20)
+    result, _, _ = cv2.grabCut(image, mask, rect, background, foreground, 5, cv2.GC_INIT_WITH_RECT)
+    response_map = np.zeros(image.shape[:2], dtype=np.uint8)
+    response_map[result == 3] = 255
+    response_map[result == 1] = 255
+    return response_map
+
+
+def find_contour_v2(image):
+    mask = find_mask(image)
+    eroded = cv2.erode(mask, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    dilated = cv2.dilate(eroded, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    _, contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     if len(contours) > 0:
         return max(contours, key=lambda contour: cv2.contourArea(contour))
     return None
@@ -80,10 +117,16 @@ def normalize_orientation(image, center_x, center_y, orientation, scale):
     return cropped
 
 
+def render_boundaries(image, contour, box):
+    result = cv2.drawContours(np.copy(image), [np.int0(box)], 0, (0, 0, 255), 2)
+    # result = cv2.drawContours(result, [np.int0(contour)], 0, (0, 255, 0), 1)
+    return result
+
+
 def main():
     for filename in glob.glob("data/*"):
         image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-        image = normalize_brightness(image)
+        # image = normalize_brightness(image)
         contour = find_contour(image)
         box = find_bounding_box(contour)
         width, height = find_width_and_length(box)

@@ -1,0 +1,102 @@
+
+body {
+    padding: 50px;
+    font: 20px Roboto, sans-serif;
+    font-weight: 300;
+    color: black;
+}
+
+#content {
+    margin: 50px 0;
+    background: white;
+    padding: 50px;
+}
+
+#nav {
+    margin-left: 25px;
+    display: inline-block;
+}
+
+#banner {
+    font: 25px Roboto, sans-serif;
+    font-weight: 300;
+}
+
+#banner > b {
+    font: 25px Roboto, sans-serif;
+    font-weight: 700;
+}
+
+#next-image {
+    margin-top: 25px;
+    display: block;
+    outline: none;
+    font: 25px Roboto, sans-serif;
+    font-weight: 400;
+    padding: 25px;
+    border: none;
+    text-transform: lowercase;
+}
+
+#work-area {
+    display: inline-block;
+    width: 800px;
+    height: 800px;
+    vertical-align: top;
+    background: rgb(235, 235, 235);
+    text-align: center;
+    line-height: 798px;
+    margin-right: 15px;
+}
+
+#feedback-area {
+    vertical-align: top;
+    display: inline-block;
+}
+
+#photo {
+    margin-top: 25px;
+    vertical-align: middle;
+    display: inline-block;
+    max-width: 800px;
+    max-height: 800px;
+}
+
+.demo-container {
+    width: 350px;
+    height: 250px;
+    background: rgb(235, 235, 235);
+    text-align: center;
+    line-height: 248px;
+    display: inline-block;
+    margin-right: 25px;
+    vertical-align: top;
+}
+
+.demo-row {
+    margin: 15px 0;
+}
+
+.demo {
+    max-width: 350px;
+    max-height: 250px;
+    vertical-align: middle;
+}
+
+.dim {
+    font: 20px Roboto, sans-serif;
+    font-weight: 300;
+    display: inline-block;
+    margin-right: 25px;
+}
+
+.demo-container-2 {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.demo-container-2 > h4 {
+    font: 20px Roboto, sans-serif;
+    font-weight: 400;
+    margin: 5px 0;
+}

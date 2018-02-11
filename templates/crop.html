@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <div id="work-area">
+        <img src="" id="photo">
+    </div>
+    <div id="feedback-area">
+        <div class="demo-row">
+            <h4 class="dim"><b>Width: </b><span id="width">...</span> px</h4>
+            <h4 class="dim"><b>Length: </b><span id="length">...</span> px</h4>
+        </div>
+        <div class="demo-row">
+            <div class="demo-container-2">
+                <h4 id="result" class="subheadline"></h4>
+                <div class="demo-container">
+                    <img data-filename="" src="" class="demo" id="demo">
+                </div>
+            </div>
+            <div class="demo-container-2">
+                <h4 id="normed" class="subheadline"></h4>
+                <div class="demo-container">
+                    <img data-filename="" src="" class="demo" id="norm">
+                </div>
+            </div>
+        </div>
+        <div class="demo-row">
+            <div class="demo-container-2">
+                <h4 id="ellipse-approach" class="subheadline"></h4>
+                <div class="demo-container">
+                    <img data-filename="" src="" class="demo" id="ellipse">
+                </div>
+            </div>
+            <div class="demo-container-2">
+                <h4 id="seg" class="subheadline"></h4>
+                <div class="demo-container">
+                    <img data-filename="" src="" class="demo" id="segmentation">
+                </div>
+            </div>
+        </div>
+        <button id="next-image" type="submit">Get next image</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+    $(document).ready(function () {
+
+        $("#next-image").click(function () {
+            $.get("/get-next-image", function (response) {
+                var width = response["width"];
+                var height = response["height"];
+                var filename = "/static/todo/" + response["filename"];
+                $("#photo").imgAreaSelect({remove: true}).attr('src', filename).imgAreaSelect({
+                    onSelectEnd: function (img, selection) {
+                        var filename = $('#photo').attr("src");
+                        var xScale = width / $("#photo").width();
+                        var yScale = height / $("#photo").height();
+                        var result = {
+                            filename: filename,
+                            x1: selection.x1 * xScale,
+                            y1: selection.y1 * yScale,
+                            x2: selection.x2 * xScale,
+                            y2: selection.y2 * yScale
+                        };
+                        $(".subheadline").text("Working...");
+                        $.post("/crop-image", result, function (response) {
+                            var rendering = response["render"];
+                            $("#width").text(response["width"]);
+                            $("#length").text(response["length"]);
+                            $("#demo").attr("src", rendering + "?" + new Date().getTime());
+                            var normalized = response["normalized"];
+                            $("#norm").attr("src", normalized + "?" + new Date().getTime());
+                            var ellipse = response["ellipse"];
+                            $("#ellipse").attr("src", ellipse + "?" + new Date().getTime());
+                            var segmentation = response["segmentation"];
+                            $("#segmentation").attr("src", segmentation + "?" + new Date().getTime());
+                            $("#result").text("Result");
+                            $("#seg").text("Image Segmentation Approach");
+                            $("#ellipse-approach").text("Ellipse Fitting Approach");
+                            $("#normed").text("Centered, Scaled, and Rotated");
+                        });
+                    }
+                });
+                $("#demo").attr('src', '');
+                $("#norm").attr('src', '');
+                $("#ellipse").attr('src', '');
+                $("#segmentation").attr('src', '');
+            });
+        });
+
+        $('#input').change(function (event) {
+            var tmppath = URL.createObjectURL(event.target.files[0]);
+            $("#photo").attr('src', tmppath);
+        });
+
+        $("#next-image").click()
+
+    });
+
+</script>
+{% endblock %}

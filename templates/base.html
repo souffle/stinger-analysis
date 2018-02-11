@@ -1,0 +1,60 @@
+<!--
+
+Flask uses a library called Jinja to render its front-end templates.
+
+One of the nice things about Jinja is: template inheritance!
+You can have a base html file like this one that other html files base themselves on.
+
+Just define "blocks" of html that you want those other html files to fill in.
+
+Then you can put shared stuff, like a nav menu or imported libraries, in here
+and you won't need to copy/paste that sort of stuff in every html file like a chump.
+
+Check out index.html to see how to use this feature, template inheritance!
+
+Check out number.html to see some basics in putting together a nice Jinja template.
+
+Check out random.html to see one way to use Javascript with Flask and Jinja.
+
+Check out form.html to see one way to take user input in Flask.
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stinger Inspector</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+
+    <link href="../static/css/style.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../static/css/imgareaselect-default.css" />
+
+    <script src="http://code.jquery.com/jquery-3.3.1.js"
+            integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+            crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+  <script type="text/javascript" src="../static/js/jquery.imgareaselect.pack.js"></script>
+  <script type="text/javascript" src="../static/js/jquery.imgareaselect.js"></script>
+  <script type="text/javascript" src="../static/js/js.js"></script>
+  
+    {% block style %}
+    {% endblock %}
+
+    {% block script %}
+    {% endblock %}
+
+</head>
+<body>
+
+<h2 id="banner">Stinger<b>Annotations</b></h2>
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+</body>
+</html>
