@@ -44,6 +44,9 @@ def calc_ellipse(thre, nn, multiplier=4):
     sig = np.cov(xya, rowvar=1)
 
     eigs = np.linalg.eig(sig)
+    if eigs[0][0] < eigs[0][1]:
+        eigs2 = [np.array([eigs[0][1],eigs[0][0]]),[eigs[1][1],eigs[1][0]]]
+        eigs = eigs2
 
     phi = 180 / np.pi * np.arctan2(eigs[1][1][0], eigs[1][1][1])
     width = multiplier * np.sqrt(eigs[0][0]) - 2 * nn
