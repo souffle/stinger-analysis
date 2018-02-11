@@ -20,7 +20,8 @@ memory = {'fave': 'placeholder'}
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('crop.html')
+
 
 @app.route('/get-next-image/', methods=['GET'])
 def get_next_image():
@@ -28,6 +29,7 @@ def get_next_image():
     next_file_to_process = find_next_file_to_process(path)
     json = {"filename": next_file_to_process}
     return jsonify(json)
+
 
 @app.route('/crop-image/', methods=['POST'])
 def crop_image():
@@ -44,6 +46,7 @@ def crop_image():
         "width": width
     }
     return jsonify(json)
+
 
 def find_next_file_to_process(path):
     for file in glob.iglob(path):
