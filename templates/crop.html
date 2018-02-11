@@ -31,6 +31,15 @@
                     <img data-filename="" src="" class="demo" id="ellipse">
                 </div>
             </div>
+
+            <div class="demo-container-2">
+                <h4 id="normalized-ian-approach" class="subheadline"></h4>
+                <div class="demo-container">
+                    <img data-filename="" src="" class="demo" id="normalized2">
+                </div>
+            </div>
+        </div>
+        <div class="demo-row">
             <div class="demo-container-2">
                 <h4 id="seg" class="subheadline"></h4>
                 <div class="demo-container">
@@ -73,6 +82,8 @@
                             $("#demo").attr("src", rendering + "?" + new Date().getTime());
                             var normalized = response["normalized"];
                             $("#norm").attr("src", normalized + "?" + new Date().getTime());
+                            var normalized2 = response["normalized2"];
+                            $("#normalized2").attr("src", normalized2 + "?" + new Date().getTime());
                             var ellipse = response["ellipse"];
                             $("#ellipse").attr("src", ellipse + "?" + new Date().getTime());
                             var segmentation = response["segmentation"];
@@ -81,6 +92,7 @@
                             $("#seg").text("Image Segmentation Approach");
                             $("#ellipse-approach").text("Ellipse Fitting Approach");
                             $("#normed").text("Centered, Scaled, and Rotated");
+                            $("#normalized-ian-approach").text("Centered, Scaled, and Rotated (Ellipse Approach)");
                         });
                     }
                 });
@@ -88,6 +100,7 @@
                 $("#norm").attr('src', '');
                 $("#ellipse").attr('src', '');
                 $("#segmentation").attr('src', '');
+                $("#normalized2").attr('src', '');
             });
         });
 

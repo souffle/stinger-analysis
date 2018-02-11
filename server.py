@@ -56,6 +56,7 @@ def crop_image():
             "ellipse": '/static/ellipses/{}'.format(os.path.basename(filename).replace('.jpg', '.png')),
             'render': '/static/output/{}'.format(os.path.basename(filename)),
             'normalized': '/static/normalized/{}'.format(os.path.basename(filename)),
+            'normalized2': '/static/normalized_ian/{}'.format(os.path.basename(filename)),
             'segmentation': '/static/segmentation/{}'.format(os.path.basename(filename))
         }
         return jsonify(json)
