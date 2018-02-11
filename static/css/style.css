@@ -6,8 +6,6 @@ body {
     color: black;
 }
 
-
-
 #content {
     margin: 50px 0;
     background: white;
@@ -17,4 +15,64 @@ body {
 #nav {
     margin-left: 25px;
     display: inline-block;
+}
+
+#banner {
+    font: 25px Roboto, sans-serif;
+    font-weight: 300;
+}
+
+#banner > b {
+    font: 25px Roboto, sans-serif;
+    font-weight: 700;
+}
+
+#next-image {
+    margin-top: 25px;
+    display: block;
+    outline: none;
+    font: 25px Roboto, sans-serif;
+    font-weight: 400;
+    padding: 25px;
+    border: none;
+    text-transform: lowercase;
+}
+
+#work-area {
+    display: inline-block;
+    width: 800px;
+    height: 800px;
+    vertical-align: top;
+    background: rgb(235, 235, 235);
+    text-align: center;
+    line-height: 798px;
+    margin-right: 15px;
+}
+
+#feedback-area {
+    vertical-align: top;
+    display: inline-block;
+}
+
+#photo {
+    vertical-align: middle;
+    display: inline-block;
+    max-width: 800px;
+    max-height: 800px;
+}
+
+.demo-container {
+    width: 400px;
+    height: 400px;
+    background: rgb(235, 235, 235);
+    text-align: center;
+    line-height: 398px;
+    display: inline-block;
+    margin-right: 25px;
+}
+
+#demo {
+    max-width: 400px;
+    max-height: 400px;
+    vertical-align: middle;
 }

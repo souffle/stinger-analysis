@@ -1,6 +1,7 @@
 import cv2
 import glob
 import numpy as np
+import os
 import ellipseEdgeDetect as elps
 
 CANVAS_DIAMETER = 1000
@@ -11,15 +12,22 @@ STANDARD_VALUE = 150
 
 
 def process_image(filename, x1, y1, x2, y2):
-    image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-    image = normalize_brightness(image)
-    cropped = image[y1:y2, x1:x2]
-    contour = find_contour(cropped)
-    box = find_bounding_box(contour)
-    width, height = find_width_and_length(box)
-    # center_x, center_y, orientation, scale = find_center_and_orientation(contour)
-    # normalized = normalize_orientation(cropped, center_x, center_y, orientation, scale)
-    return width, height
+    filename = filename.strip('/')
+    basename = os.path.basename(filename)
+    image = cv2.imread(filename, cv2.IMREAD_COLOR)
+    if image is not None:
+        # image = normalize_brightness(image)
+        cropped = image[y1:y2, x1:x2]
+        grayscale = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+        contour = find_contour(grayscale)
+        box = find_bounding_box(contour)
+        width, length = find_width_and_length(box)
+        center_x, center_y, orientation, scale = find_center_and_orientation(contour)
+        normalized = normalize_orientation(cropped, center_x, center_y, orientation, scale)
+        cv2.imwrite("static/normalized/{}".format(basename), normalized)
+        demo = render_boundaries(cropped, contour, box)
+        cv2.imwrite("static/output/{}".format(basename), demo)
+        return width, length
 
 
 def normalize_brightness(image):
@@ -30,11 +38,8 @@ def normalize_brightness(image):
 
 def find_contour(image):
     edges = cv2.Canny(image, 50, 75)
-    cv2.imshow('2', edges)
     dilated = cv2.dilate(edges, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
-    cv2.imshow('3', dilated)
     eroded = cv2.erode(dilated, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
-    cv2.imshow('4', eroded)
     _, contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     if len(contours) > 0:
         return max(contours, key=lambda contour: cv2.contourArea(contour))
@@ -80,10 +85,16 @@ def normalize_orientation(image, center_x, center_y, orientation, scale):
     return cropped
 
 
+def render_boundaries(image, contour, box):
+    result = cv2.drawContours(image, [np.int0(box)], 0, (0, 0, 255), 2)
+    # result = cv2.drawContours(result, [np.int0(contour)], 0, (0, 255, 0), 1)
+    return result
+
+
 def main():
     for filename in glob.glob("data/*"):
         image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-        image = normalize_brightness(image)
+        # image = normalize_brightness(image)
         contour = find_contour(image)
         box = find_bounding_box(contour)
         width, height = find_width_and_length(box)
