@@ -84,5 +84,5 @@ def file2ellipse(filename,plot=False):
     muy = ep2[0][0]
     scale = np.sqrt(10000.0/(ep2[1]*ep2[2]))
     rot = ep2[3]
-    return [mu,scale,rot]
+    return [mux, muy,scale,rot]
 
