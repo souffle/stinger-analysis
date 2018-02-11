@@ -1,7 +1,7 @@
 import cv2
 import glob
 import numpy as np
-import ellipseEdgeDetect.py as elps
+import ellipseEdgeDetect as elps
 
 CANVAS_DIAMETER = 1000
 STANDARD_SIZE = 10000
@@ -12,7 +12,7 @@ STANDARD_VALUE = 150
 
 def process_image(filename, x1, y1, x2, y2):
     image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-    image = normalize_brightness(image)
+    # image = normalize_brightness(image)
     cropped = image[y1:y2, x1:x2]
     contour = find_contour(cropped)
     box = find_bounding_box(contour)
@@ -83,7 +83,7 @@ def normalize_orientation(image, center_x, center_y, orientation, scale):
 def main():
     for filename in glob.glob("data/*"):
         image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-        image = normalize_brightness(image)
+        # image = normalize_brightness(image)
         contour = find_contour(image)
         box = find_bounding_box(contour)
         width, height = find_width_and_length(box)
