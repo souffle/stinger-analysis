@@ -18,8 +18,15 @@ def process_image(filename, x1, y1, x2, y2):
     if image is not None:
         # image = normalize_brightness(image)
         cropped = image[y1:y2, x1:x2]
+        print cropped.shape
         grayscale = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-        contour = find_contour(grayscale)
+        try:
+            elps.file2ellipse(grayscale, basename, plot=True)
+        except:
+            pass
+        fallback = find_contour(grayscale)
+        preferred = find_contour_v2(cropped)
+        contour = preferred if preferred is not None else fallback
         box = find_bounding_box(contour)
         width, length = find_width_and_length(box)
         center_x, center_y, orientation, scale = find_center_and_orientation(contour)
@@ -27,6 +34,8 @@ def process_image(filename, x1, y1, x2, y2):
         cv2.imwrite("static/normalized/{}".format(basename), normalized)
         demo = render_boundaries(cropped, contour, box)
         cv2.imwrite("static/output/{}".format(basename), demo)
+        segmentation = find_mask(cropped)
+        cv2.imwrite("static/segmentation/{}".format(basename), segmentation)
         return width, length
 
 
@@ -41,6 +50,29 @@ def find_contour(image):
     dilated = cv2.dilate(edges, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
     eroded = cv2.erode(dilated, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
     _, contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
+    if len(contours) > 0:
+        return max(contours, key=lambda contour: cv2.contourArea(contour))
+    return None
+
+
+def find_mask(image):
+    h, w = image.shape[:2]
+    mask = np.zeros(image.shape[:2], np.uint8)
+    background = np.zeros((1, 65), np.float64)
+    foreground = np.zeros((1, 65), np.float64)
+    rect = (10, 10, w - 20, h - 20)
+    result, _, _ = cv2.grabCut(image, mask, rect, background, foreground, 5, cv2.GC_INIT_WITH_RECT)
+    response_map = np.zeros(image.shape[:2], dtype=np.uint8)
+    response_map[result == 3] = 255
+    response_map[result == 1] = 255
+    return response_map
+
+
+def find_contour_v2(image):
+    mask = find_mask(image)
+    eroded = cv2.erode(mask, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    dilated = cv2.dilate(eroded, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    _, contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     if len(contours) > 0:
         return max(contours, key=lambda contour: cv2.contourArea(contour))
     return None
@@ -86,7 +118,7 @@ def normalize_orientation(image, center_x, center_y, orientation, scale):
 
 
 def render_boundaries(image, contour, box):
-    result = cv2.drawContours(image, [np.int0(box)], 0, (0, 0, 255), 2)
+    result = cv2.drawContours(np.copy(image), [np.int0(box)], 0, (0, 0, 255), 2)
     # result = cv2.drawContours(result, [np.int0(contour)], 0, (0, 255, 0), 1)
     return result
 

@@ -55,6 +55,7 @@ body {
 }
 
 #photo {
+    margin-top: 25px;
     vertical-align: middle;
     display: inline-block;
     max-width: 800px;
@@ -62,17 +63,40 @@ body {
 }
 
 .demo-container {
-    width: 400px;
-    height: 400px;
+    width: 350px;
+    height: 250px;
     background: rgb(235, 235, 235);
     text-align: center;
-    line-height: 398px;
+    line-height: 248px;
+    display: inline-block;
+    margin-right: 25px;
+    vertical-align: top;
+}
+
+.demo-row {
+    margin: 15px 0;
+}
+
+.demo {
+    max-width: 350px;
+    max-height: 250px;
+    vertical-align: middle;
+}
+
+.dim {
+    font: 20px Roboto, sans-serif;
+    font-weight: 300;
     display: inline-block;
     margin-right: 25px;
 }
 
-#demo {
-    max-width: 400px;
-    max-height: 400px;
-    vertical-align: middle;
+.demo-container-2 {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.demo-container-2 > h4 {
+    font: 20px Roboto, sans-serif;
+    font-weight: 400;
+    margin: 5px 0;
 }

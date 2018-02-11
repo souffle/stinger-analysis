@@ -39,23 +39,24 @@ def get_next_image():
 @app.route('/crop-image', methods=['POST'])
 def crop_image():
     crop_info = dict(request.form)
-    print crop_info
     filename = crop_info['filename'][0]
     x1 = int(float(crop_info['x1'][0]))
     y1 = int(float(crop_info['y1'][0]))
     x2 = int(float(crop_info['x2'][0]))
     y2 = int(float(crop_info['y2'][0]))
+    database.mark_file_as_processed(os.path.basename(filename))
     result = analysis.process_image(filename, x1, y1, x2, y2)
     if result is not None:
         # TODO: write length, width, ratio to spreadsheet
         width, length = result
-        database.mark_file_as_processed(os.path.basename(filename))
         json = {
             'status': 'ok',
             "length": str(length),
             "width": str(width),
+            "ellipse": '/static/ellipses/{}'.format(os.path.basename(filename).replace('.jpg', '.png')),
             'render': '/static/output/{}'.format(os.path.basename(filename)),
-            'normalized': '/static/normalized/{}'.format(os.path.basename(filename))
+            'normalized': '/static/normalized/{}'.format(os.path.basename(filename)),
+            'segmentation': '/static/segmentation/{}'.format(os.path.basename(filename))
         }
         return jsonify(json)
     return jsonify({'status': 'failed'})
