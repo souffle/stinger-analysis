@@ -14,21 +14,29 @@ Our Stack:
 - Redis database keeps track of which files have been processed
 
 Image processing techniques:
+
 Strategy #1: 
+- # TODO: Tommy
 
 Strategy #2: Fitting an Elipse
 - Ellipse was fitted by (a) identifying the quickest-varying regions of the image, and (b) fitting an ellipse to these areas.
 - Current ellipse fitting is only based on the statistical moments of the quickest-varying region: goal is to implement a more sophisticated fitting algorithm
+
+Things we tried that were unsuccessful or need more work:
+- # TODO: Tommy
+- Using Hough ellipses to identify nematocysts in an image (autocrop)
 
 Future Improvements and Directions
   Minor Improvements
   - Add an option to mark an image as "bad" in the front end and mark data as such in the spreadsheet
   - Read meters per pixel metadata to report size in nanometers
   - Calculate area of the nematocyst
+  - Continue to improve length/width detection and ellipse fit modeling
   
   Future Directions
   - Autocrop images and flag images for review where our fit is outside some confidence window
   - Detect additional features of nematocysts
+    - Via PCA on re-scaled images
+    - Via additional algorithms we write
   - Host our app so others can help crop images (crowdsource!)
   - Associate measurements with associated metadata / classification
-  
