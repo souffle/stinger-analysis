@@ -1,7 +1,8 @@
+import csv
 import glob
 import os
-import cv2
 
+import cv2
 from flask import Flask, request, render_template, jsonify
 from flask import logging
 
@@ -15,9 +16,7 @@ app = Flask(__name__)
 app.debug = True
 logger = logging.getLogger(__name__)
 
-# This is a janky and bad way to store data for our app.
-# In reality, we would use a nice database like Redis, Postgres, MySQL, MongoDB, whatever...
-memory = {'fave': 'placeholder'}
+SPREADSHEET = 'results/nematocyst_dimensions.csv'
 
 
 @app.route('/')
@@ -47,8 +46,8 @@ def crop_image():
     y2 = int(float(crop_info['y2'][0]))
     result = analysis.process_image(filename, x1, y1, x2, y2)
     if result is not None:
-        # TODO: write length, width, ratio to spreadsheet
         width, length = result
+        write_to_spreadsheet(filename, length, width)
         json = {
             'status': 'ok',
             "length": str(length),
@@ -69,6 +68,18 @@ def find_next_file_to_process(path):
         processed = database.check_file_processed(basename)
         if processed is None or processed.decode("utf-8") != "processed":
             return basename
+
+
+def write_to_spreadsheet(filename, length, width):
+    length_to_width = (1.0*length)/width
+    f = open(SPREADSHEET, "a+")
+    row = [[filename, length, width, length_to_width]]
+
+    with f:
+        writer = csv.writer(f)
+        writer.writerows(row)
+
+    f.close()
 
 
 if __name__ == '__main__':
