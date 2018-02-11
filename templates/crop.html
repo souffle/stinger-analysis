@@ -1,51 +1,66 @@
 {% extends "base.html" %}
-<!-- This tells Flask to use base.html as a base for this template -->
 
-<!-- This tells Flask to fill in the block `content` in base.html with the enclosed code -->
 {% block content %}
-<script type="text/javascript" src="../static/js/js.js"></script>
-<h1 id='h1'> Stinger Analysis!</h1>
-<br>
-<input type="file" id="input"/>
-<br>
-<br>
-<img width="800px" src="" id="photo"/>
-<script>$(document).ready(function () {
+<div>
+    <div id="work-area">
+        <img src="" id="photo">
+    </div>
+    <div id="feedback-area">
+        <div class="demo-row">
+            <div class="demo-container">
+                <img src="" id="demo">
+            </div>
+            <div class="demo-container">
+                <img src="" id="norm">
+            </div>
+        </div>
+        <button id="next-image" type="submit">Get next image</button>
+    </div>
+</div>
+{% endblock %}
 
-    $('img#photo').imgAreaSelect({
-        onSelectEnd: function (img, selection) {
-            var filename = $('#input').val().split('\\').pop();
-            var result = JSON.stringify({
-                filename: filename,
-                x1: selection.x1,
-                y1: selection.y1,
-                x2: selection.x2,
-                y2: selection.y2
+{% block script %}
+<script>
+
+    $(document).ready(function () {
+
+        $("#next-image").click(function () {
+            $.get("/get-next-image", function (response) {
+                var width = response["width"];
+                var height = response["height"];
+                var filename = "/static/todo/" + response["filename"];
+                $("#photo").imgAreaSelect({remove: true}).attr('src', filename).imgAreaSelect({
+                    onSelectEnd: function (img, selection) {
+                        var filename = $('#photo').attr("src");
+                        var xScale = width / $("#photo").width();
+                        var yScale = height / $("#photo").height();
+                        var result = {
+                            filename: filename,
+                            x1: selection.x1 * xScale,
+                            y1: selection.y1 * yScale,
+                            x2: selection.x2 * xScale,
+                            y2: selection.y2 * yScale
+                        };
+                        $.post("/crop-image", result, function (response) {
+                            console.log(response);
+                            var rendering = response["render"];
+                            $("#demo").attr("src", rendering + "?" + new Date().getTime());
+                            var normalized = response["normalized"];
+                            $("#norm").attr("src", normalized + "?" + new Date().getTime());
+                        });
+                    }
+                });
+                $("#demo").attr('src', '');
+                $("norm").attr('src', '');
             });
+        });
 
-            console.log(result);
-        }
+        $('#input').change(function (event) {
+            var tmppath = URL.createObjectURL(event.target.files[0]);
+            $("#photo").attr('src', tmppath);
+        });
+
     });
-
-    $('#input').change(function (event) {
-        var tmppath = URL.createObjectURL(event.target.files[0]);
-        $("#photo").attr('src', tmppath);
-    });
-
-    $.ajax({
-        url: "../static/img/",
-        success: function (data) {
-            $(data).find("a:contains(.tif)").each(function () {
-                // will loop through
-                console.log(this);
-
-            });
-        }
-    });
-
-
-});
-
 
 </script>
 {% endblock %}
