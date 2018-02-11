@@ -72,9 +72,8 @@ def newThreshold(image, elpsArray, lowert=20):
     return thre2
 
 
-def file2ellipse(filename, plot=False):
+def file2ellipse(imfl, filename, plot=False):
     nn = 5
-    imfl = file2image(filename)
     thre = image2threshold(imfl, nn, lowert=20)
     ep = calc_ellipse(thre, nn, 5)  # ellipse_param
     elpsArr = getEllipseArray(thre, ep[0], ep[1], ep[2], ep[3])
@@ -85,7 +84,7 @@ def file2ellipse(filename, plot=False):
     if plot:
         plt.imshow(imfl, cmap='Greys')
         plt.imshow(elpsArr2, alpha=0.2, cmap='Greys')
-        plt.show()
+        plt.savefig("static/ellipses/{}".format(filename.replace('.jpg', '.png')))
 
     mux = ep2[0][1]
     muy = ep2[0][0]
