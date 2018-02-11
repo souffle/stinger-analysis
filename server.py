@@ -1,6 +1,7 @@
-import random
-from flask import Flask, request, render_template, jsonify, redirect
+from flask import Flask, request, render_template, jsonify
 from flask import logging
+
+from database import mark_file_as_processed
 
 app = Flask(__name__)
 # When this is True, when you edit this file, the server automatically picks up the changes and refreshes! Wow!
@@ -29,6 +30,7 @@ def crop_image():
     return jsonify(process_image(crop_info))
 
 def process_image(crop_info):
+    mark_file_as_processed(crop_info["filename"])
     return {
         "length": 2,
         "width": 1,
