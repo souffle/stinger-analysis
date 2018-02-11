@@ -80,7 +80,8 @@ def file2ellipse(filename,plot=False):
         plt.imshow(elpsArr2,alpha=0.2,cmap='Greys')
         plt.show()
     
-    mu = np.array([ep2[0][1],ep2[0][0]])
+    mux = ep2[0][1]
+    muy = ep2[0][0]
     scale = np.sqrt(10000.0/(ep2[1]*ep2[2]))
     rot = ep2[3]
     return [mu,scale,rot]
