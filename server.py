@@ -72,14 +72,14 @@ def find_next_file_to_process(path):
 
 def write_to_spreadsheet(filename, length, width):
     length_to_width = (1.0*length)/width
-    file = open(SPREADSHEET, "a+")
+    f = open(SPREADSHEET, "a+")
     row = [[filename, length, width, length_to_width]]
 
-    with file:
-        writer = csv.writer(file)
+    with f:
+        writer = csv.writer(f)
         writer.writerows(row)
 
-    file.close()
+    f.close()
 
 
 if __name__ == '__main__':
