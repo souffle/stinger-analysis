@@ -6,10 +6,12 @@ CANVAS_DIAMETER = 1000
 STANDARD_SIZE = 10000
 STANDARD_WIDTH = 350
 STANDARD_HEIGHT = 75
+STANDARD_VALUE = 150
 
 
 def process_image(filename, x1, y1, x2, y2):
     image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+    image = normalize_brightness(image)
     cropped = image[y1:y2, x1:x2]
     contour = find_contour(cropped)
     box = find_bounding_box(contour)
@@ -19,10 +21,19 @@ def process_image(filename, x1, y1, x2, y2):
     return width, height
 
 
+def normalize_brightness(image):
+    avg_brightness = np.mean(image)
+    factor = STANDARD_VALUE / avg_brightness
+    return (image * factor).astype(np.uint8)
+
+
 def find_contour(image):
     edges = cv2.Canny(image, 50, 75)
+    cv2.imshow('2', edges)
     dilated = cv2.dilate(edges, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    cv2.imshow('3', dilated)
     eroded = cv2.erode(dilated, kernel=np.ones((3, 3), dtype=np.uint8), iterations=2)
+    cv2.imshow('4', eroded)
     _, contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     if len(contours) > 0:
         return max(contours, key=lambda contour: cv2.contourArea(contour))
@@ -71,6 +82,7 @@ def normalize_orientation(image, center_x, center_y, orientation, scale):
 def main():
     for filename in glob.glob("data/*"):
         image = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+        image = normalize_brightness(image)
         contour = find_contour(image)
         box = find_bounding_box(contour)
         width, height = find_width_and_length(box)
@@ -80,8 +92,10 @@ def main():
         # Render box
         color_image = cv2.imread(filename, cv2.IMREAD_COLOR)
         result = cv2.drawContours(color_image, [np.int0(box)], 0, (0, 0, 255), 2)
-        cv2.imshow('1', normalized)
-        cv2.imshow('2', result)
+        result = cv2.drawContours(result, [np.int0(contour)], 0, (0, 255, 0), 1)
+        cv2.imshow('1', image)
+        cv2.imshow('5', normalized)
+        cv2.imshow('6', result)
         cv2.waitKey()
 
 
@@ -90,4 +104,4 @@ def test_full_process():
 
 
 if __name__ == '__main__':
-    test_full_process()
+    main()
