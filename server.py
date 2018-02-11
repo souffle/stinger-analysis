@@ -1,6 +1,9 @@
+import glob
 import random
 from flask import Flask, request, render_template, jsonify, redirect
 from flask import logging
+
+import database
 
 app = Flask(__name__)
 # When this is True, when you edit this file, the server automatically picks up the changes and refreshes! Wow!
@@ -18,6 +21,13 @@ memory = {'fave': 'placeholder'}
 def home():
     return render_template('index.html')
 
+@app.route('/get-next-image/', methods=['GET'])
+def get_next_image():
+    path = "data/*.tif"
+    next_file_to_process = find_next_file_to_process(path)
+    json = {"filename": next_file_to_process}
+    return jsonify(json)
+
 @app.route('/crop-image/', methods=['POST'])
 def crop_image():
     crop_info = dict(request.form)
@@ -34,6 +44,14 @@ def process_image(crop_info):
         "width": 1,
         "ratio": 2
     }
+
+def find_next_file_to_process(path):
+    for file in glob.iglob(path):
+        filename = file.split("/")[1]
+        processed = database.check_file_processed(filename)
+        if processed is None or processed.decode("utf-8") != "processed":
+            return filename
+
 
 if __name__ == '__main__':
     # This starts the server. Just run `python server.py` to start the app.
