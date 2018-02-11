@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b1de4413-8df1-4418-bcfc-ac05c8f894b7" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/analysis.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/data/cropped.jpg" />
-    </list>
+    <list default="true" id="b1de4413-8df1-4418-bcfc-ac05c8f894b7" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
