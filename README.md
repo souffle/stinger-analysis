@@ -21,7 +21,7 @@ Strategy #1: Morphological Analysis
 - Our fallback approach is to use edge detection in order to find the contour of the nematocyst, using dilation and erosion in order to account for noise. This approach is very dependent on the pixels being _just right_ though, which is why we prefer the more robust graph cut approach.
 - We use statistical image moments to find the center of the nematocyst as well as to normalize its orientation and scale. This will be helpful for future techniques as it makes it easier to compare the nematocyst structures programatically.
 
-Strategy #2: Fitting an Elipse
+Strategy #2: Fitting an Ellipse
 - Ellipse was fitted by (a) identifying the quickest-varying regions of the image, and (b) fitting an ellipse to these areas.
 - Current ellipse fitting is only based on the statistical moments of the quickest-varying region: goal is to implement a more sophisticated fitting algorithm
 
